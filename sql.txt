@@ -1,0 +1,99 @@
+CREATE TABLE user (
+  id            VARCHAR(50)  NOT NULL,
+  name          VARCHAR(50)  NOT NULL,
+  password      VARCHAR(100),
+  checked       BOOLEAN      NOT NULL,
+  profile_image VARCHAR(50),
+  message       TEXT,
+  language      JSON,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE board (
+  id             INT NOT NULL AUTO_INCREMENT,
+  user_id        VARCHAR(50) NOT NULL,
+  title          VARCHAR(50) NOT NULL,
+  content        TEXT NOT NULL,
+  comment_count  INT NOT NULL DEFAULT 0,
+  favorite_count INT NOT NULL DEFAULT 0,
+  view_count     INT NOT NULL DEFAULT 0,
+  write_datetime DATETIME NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (user_id) REFERENCES user(id)
+);
+
+CREATE TABLE boardComment (
+  id       INT NOT NULL AUTO_INCREMENT,
+  board_id INT NOT NULL,
+  user_id  VARCHAR(50) NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (board_id) REFERENCES board(id),
+  FOREIGN KEY (user_id) REFERENCES user(id)
+);
+
+CREATE TABLE boardFavorite (
+  board_id INT NOT NULL,
+  user_id  VARCHAR(50) NOT NULL,
+  PRIMARY KEY (board_id, user_id),
+  FOREIGN KEY (board_id) REFERENCES board(id),
+  FOREIGN KEY (user_id) REFERENCES user(id)
+);
+
+CREATE TABLE chatRoom (
+  id              INT NOT NULL AUTO_INCREMENT,
+  name            VARCHAR(50) NOT NULL,
+  message_key     VARCHAR(50) NOT NULL,
+  create_datetime DATETIME NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE userChat (
+  user_id  VARCHAR(50) NOT NULL,
+  chat_id  INT NOT NULL,
+  is_owner BOOLEAN NOT NULL,
+  PRIMARY KEY (user_id, chat_id),
+  FOREIGN KEY (user_id) REFERENCES user(id),
+  FOREIGN KEY (chat_id) REFERENCES chatRoom(id)
+);
+
+CREATE TABLE friend (
+  user_id   VARCHAR(50) NOT NULL,
+  friend_id VARCHAR(50) NOT NULL,
+  status    BOOLEAN NOT NULL,
+  PRIMARY KEY (user_id, friend_id),
+  FOREIGN KEY (user_id) REFERENCES user(id),
+  FOREIGN KEY (friend_id) REFERENCES user(id)
+);
+
+CREATE TABLE plugin (
+  id      INT NOT NULL AUTO_INCREMENT,
+  title   VARCHAR(50) NOT NULL,
+  content TEXT NOT NULL,
+  url     VARCHAR(100) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE theme (
+  id      INT NOT NULL AUTO_INCREMENT,
+  title   VARCHAR(50) NOT NULL,
+  content TEXT NOT NULL,
+  url     VARCHAR(100) NOT NULL,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE userPlug (
+  plug_id INT NOT NULL,
+  user_id VARCHAR(50) NOT NULL,
+  rate    FLOAT NOT NULL,
+  PRIMARY KEY (plug_id, user_id),
+  FOREIGN KEY (plug_id) REFERENCES plugin(id),
+  FOREIGN KEY (user_id) REFERENCES user(id)
+);
+
+CREATE TABLE userTheme (
+  theme_id INT NOT NULL,
+  user_id  VARCHAR(50) NOT NULL,
+  PRIMARY KEY (theme_id, user_id),
+  FOREIGN KEY (theme_id) REFERENCES theme(id),
+  FOREIGN KEY (user_id) REFERENCES user(id)
+);
