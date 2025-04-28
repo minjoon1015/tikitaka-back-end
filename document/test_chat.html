@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        #chatBox {
+            width: 400px;
+            height: 300px;
+            border: 1px solid #ccc;
+            overflow-y: auto;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chatBox"></div>
+    <input type="text" id="messageInput" placeholder="Type a message" onkeydown="onKeyDownHandler(event)" />
+    <button onclick="sendMessage()">Send</button>
+    <script>
+        const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiaWF0IjoxNzQ1NzY0NTM3LCJleHAiOjE3NDU3NjgxMzd9.Tu-DuaF8KHbdcM5pswIbUbAdCm1lpFsJ9vj6Sq75Y50.eyJzdWIiOiJ0ZXN0IiwiaWF0IjoxNzQ1NzYyOTAxLCJleHAiOjE3NDU3NjY1MDF9.iMlhVmDEDT_Kk0ZYMxjdGKw-rAV_isK9Tw8R5lLNIKk";
+        const socket = new SockJS('http://localhost:8080/api/chat');
+        const stompClient = Stomp.over(socket);
+
+        // 연결 및 채팅 메시지 받아오기
+        stompClient.connect({
+            Authorization: `Bearer ${token}`
+        }, (frame) => {
+            stompClient.subscribe('/topic/chat', (messageOutput) => {
+                console.log(messageOutput.body);
+                const chatBox = document.getElementById('chatBox');
+                chatBox.innerHTML += '<br>' + messageOutput.body;
+            });
+        });
+
+        function sendMessage() {
+            const message = document.getElementById('messageInput').value;
+            const sendJson = {
+                "message": message,
+                "topic":"/topic/chat"
+            };
+            stompClient.send('/chat/send', {}, JSON.stringify(sendJson));
+            document.getElementById('messageInput').value = "";
+        }
+
+        function onKeyDownHandler(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>

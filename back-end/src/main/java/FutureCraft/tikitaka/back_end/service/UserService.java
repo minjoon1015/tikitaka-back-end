@@ -1,14 +1,20 @@
+
+
 package FutureCraft.tikitaka.back_end.service;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import FutureCraft.tikitaka.back_end.dto.request.SignUpRequestDto;
-import FutureCraft.tikitaka.back_end.dto.response.SignInResponseDto;
-import FutureCraft.tikitaka.back_end.dto.response.SignUpResponseDto;
+import FutureCraft.tikitaka.back_end.dto.component.UserDto;
+import FutureCraft.tikitaka.back_end.dto.request.sign.SignUpRequestDto;
+import FutureCraft.tikitaka.back_end.dto.request.user.UserSearchRequestDto;
+import FutureCraft.tikitaka.back_end.dto.response.sign.SignInResponseDto;
+import FutureCraft.tikitaka.back_end.dto.response.sign.SignUpResponseDto;
+import FutureCraft.tikitaka.back_end.dto.response.user.UserSearchResponseDto;
 import FutureCraft.tikitaka.back_end.entity.User;
 import FutureCraft.tikitaka.back_end.provider.JwtProvider;
 import FutureCraft.tikitaka.back_end.repository.UserRepository;
@@ -20,17 +26,14 @@ public class UserService {
     private final JwtProvider jwtProvider;
     private final UserRepository userRepository;
 
-    public ResponseEntity signUp(SignUpRequestDto dto) {
+    public ResponseEntity<? super SignUpResponseDto> signUp(SignUpRequestDto dto) {
         try {
             boolean existsId = userRepository.existsById(dto.getId());
             if (existsId) {
                 return SignUpResponseDto.badRequest();
             }
             User user = new User(dto);
-            User savedUser = userRepository.save(user);
-            if (savedUser == null) {
-                return SignUpResponseDto.DbError();
-            }
+            userRepository.save(user);
             return SignUpResponseDto.success();
         } catch (Exception e) {
             e.printStackTrace();
@@ -38,16 +41,16 @@ public class UserService {
         }
     }
 
-    public ResponseEntity signIn(SignUpRequestDto requestDto) {
-        boolean existsById = userRepository.existsById(requestDto.getId());
-        boolean existsByPassword = userRepository.existsByPassword(requestDto.getPassword());
-        try {
-            if (!existsById) {
+    public ResponseEntity<? super SignInResponseDto> signIn(SignUpRequestDto requestDto) {
+        try {    
+            if (requestDto.getId() == "" || requestDto.getId() == null) {
                 return SignInResponseDto.failedId();
-            } 
-            if (!existsByPassword) {
+            }
+            
+            if (requestDto.getPassword() == "" || requestDto.getPassword() == null) {
                 return SignInResponseDto.failedPassword();
             }
+
         } catch (Exception e) {
             e.printStackTrace();
             return SignInResponseDto.DbError();
@@ -55,4 +58,20 @@ public class UserService {
         String token = jwtProvider.create(requestDto.getId());
         return SignInResponseDto.success(token);
     }
-}
+
+    public ResponseEntity<? super UserSearchResponseDto> search(UserSearchRequestDto dto) {
+        try {
+            if (dto.getSearchId() == null) return UserSearchResponseDto.badRequest();
+            PageRequest pageRequest = PageRequest.of(0, 100);
+            List<User> users = userRepository.findUsersStartingWith(dto.getSearchId(), pageRequest);
+            List<UserDto> userList = new ArrayList<>();
+            for (User user : users) {
+                userList.add(new UserDto(user.getId(), user.getName(), user.getProfileImage()));
+            }
+            return UserSearchResponseDto.success(userList);
+        } catch (Exception e) {
+            e.printStackTrace();  
+            return UserSearchResponseDto.DbError();
+        }
+    }
+}   

@@ -10,12 +10,11 @@ import lombok.Setter;
 @Getter
 @Setter
 @AllArgsConstructor
-public class responseDto {
+public class ResponseDto {
     private String message;
 
-    public static ResponseEntity DbError() {
-        responseDto responseDto = new responseDto("DB Error");
+    public static ResponseEntity<ResponseDto> DbError() {
+        ResponseDto responseDto = new ResponseDto("DB Error");
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseDto);
     }
-    
 }

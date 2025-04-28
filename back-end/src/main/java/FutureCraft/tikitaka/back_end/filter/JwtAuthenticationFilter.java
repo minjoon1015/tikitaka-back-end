@@ -41,12 +41,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 AbstractAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(id, null, AuthorityUtils.NO_AUTHORITIES);
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);            
+                filterChain.doFilter(request, response);
                 
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-            filterChain.doFilter(request, response);
+            }   
     }
 
     private String parseBearerToken(HttpServletRequest request) {
@@ -59,6 +59,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         return null;
     }
-
-    
 }

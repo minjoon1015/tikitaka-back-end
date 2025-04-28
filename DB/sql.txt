@@ -50,7 +50,6 @@ CREATE TABLE chatRoom (
 CREATE TABLE userChat (
   user_id  VARCHAR(50) NOT NULL,
   chat_id  INT NOT NULL,
-  is_owner BOOLEAN NOT NULL,
   PRIMARY KEY (user_id, chat_id),
   FOREIGN KEY (user_id) REFERENCES user(id),
   FOREIGN KEY (chat_id) REFERENCES chatRoom(id)
