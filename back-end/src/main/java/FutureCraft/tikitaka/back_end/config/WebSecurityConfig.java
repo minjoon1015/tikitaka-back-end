@@ -38,22 +38,24 @@ public class WebSecurityConfig {
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth->auth
-                    .requestMatchers("/", "/api/user/*").permitAll()
+                    // .requestMatchers("**").permitAll()
+                    .requestMatchers("/api/user/**").permitAll()
+                    .requestMatchers("/api/chat/**").permitAll()
+                    .requestMatchers("/api/chat").permitAll()
                     .anyRequest().authenticated()
-                    // .requestMatchers("/**").permitAll()
                 )
                 .exceptionHandling(except -> except.authenticationEntryPoint(new FailedAuthenticationEntryPoint()))
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-
         return httpSecurity.build();
     }
 
     @Bean
     protected CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList("*"));
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

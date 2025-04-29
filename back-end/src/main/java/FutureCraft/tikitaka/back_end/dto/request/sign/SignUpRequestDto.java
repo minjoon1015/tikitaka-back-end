@@ -1,4 +1,4 @@
-package FutureCraft.tikitaka.back_end.dto.request;
+package FutureCraft.tikitaka.back_end.dto.request.sign;
 
 import lombok.Getter;
 import lombok.Setter;

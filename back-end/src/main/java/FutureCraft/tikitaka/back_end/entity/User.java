@@ -1,6 +1,6 @@
 package FutureCraft.tikitaka.back_end.entity;
 
-import FutureCraft.tikitaka.back_end.dto.request.SignUpRequestDto;
+import FutureCraft.tikitaka.back_end.dto.request.sign.SignUpRequestDto;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;

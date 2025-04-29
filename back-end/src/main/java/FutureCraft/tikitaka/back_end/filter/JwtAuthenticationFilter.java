@@ -28,25 +28,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
             try {
                 String token = parseBearerToken(request);
+                System.out.println("토큰 : " + token);
                 if (token == null) {
                     filterChain.doFilter(request, response);
                     return;
                 }
                 String id = jwtProvider.validate(token);
+                System.out.println("아이디 : " + id);
                 if (id == null) {
                     filterChain.doFilter(request, response);
                     return; 
                 }
                 
-                AbstractAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(id, null, AuthorityUtils.NO_AUTHORITIES);
+                AbstractAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(id, null, AuthorityUtils.createAuthorityList("ROLE_USER"));
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);            
+                filterChain.doFilter(request, response);
                 
             } catch (Exception e) {
                 e.printStackTrace();
-            }
-            filterChain.doFilter(request, response);
+            }   
     }
 
     private String parseBearerToken(HttpServletRequest request) {
@@ -59,6 +61,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         return null;
     }
-
-    
 }

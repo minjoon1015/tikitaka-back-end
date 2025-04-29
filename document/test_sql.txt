@@ -1,0 +1,37 @@
+use tikitaka;
+CREATE TABLE user (
+  id            VARCHAR(50)  NOT NULL,
+  name          VARCHAR(50)  NOT NULL,
+  password      VARCHAR(100),
+  profile_image VARCHAR(50),
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE friend (
+  user_id   VARCHAR(50) NOT NULL,
+  friend_id VARCHAR(50) NOT NULL,
+  status    VARCHAR(50) NOT NULL,
+  PRIMARY KEY (user_id, friend_id),
+  FOREIGN KEY (user_id) REFERENCES user(id),
+  FOREIGN KEY (friend_id) REFERENCES user(id),
+  ON DELETE CASCADE;
+);
+
+CREATE TABLE chatRoom (
+  chat_id              INT NOT NULL AUTO_INCREMENT,
+  manager_user_id  VARCHAR(50)  NOT NULL,
+  chat_name            VARCHAR(50) NOT NULL,
+  PRIMARY KEY (chat_id),
+  FOREIGN KEY (manager_user_id) REFERENCES user(id),
+  ON DELETE CASCADE;
+);
+
+CREATE TABLE userChat (
+  id         INT NOT NULL AUTO_INCREMENT
+  user_id  VARCHAR(50) NOT NULL,
+  chat_id  INT NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (user_id) REFERENCES user(id),
+  FOREIGN KEY (chat_id) REFERENCES chatRoom(chat_id),
+  ON DELETE CASCADE;
+);
