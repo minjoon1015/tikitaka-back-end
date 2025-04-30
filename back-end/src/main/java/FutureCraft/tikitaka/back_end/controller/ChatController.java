@@ -14,9 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 import FutureCraft.tikitaka.back_end.dto.request.chat.ChatRoomAddFriendListRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.chat.ChatRoomAddRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.chat.ChatRoomCreateRequestDto;
+import FutureCraft.tikitaka.back_end.dto.request.chat.ChatRoomListRequestDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.ChatRoomAddFriendListResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.ChatRoomAddResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.ChatRoomCreateResponseDto;
+import FutureCraft.tikitaka.back_end.dto.response.chat.ChatRoomListResponseDto;
 import FutureCraft.tikitaka.back_end.service.ChatRoomService;
 import FutureCraft.tikitaka.back_end.service.UserChatService;
 import lombok.RequiredArgsConstructor;
@@ -46,5 +48,11 @@ public class ChatController {
     @PostMapping("add")
     public ResponseEntity<? super ChatRoomAddResponseDto> add(@RequestBody ChatRoomAddRequestDto requestDto) {
         return userChatService.add(requestDto);
+    }
+
+    @GetMapping("list")
+    public ResponseEntity<? super ChatRoomListResponseDto> list(@AuthenticationPrincipal String id) {
+        ChatRoomListRequestDto requestDto = new ChatRoomListRequestDto(id);
+        return chatRoomService.list(requestDto);
     }
 }

@@ -38,10 +38,7 @@ public class WebSecurityConfig {
                     .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth->auth
-                    // .requestMatchers("**").permitAll()
                     .requestMatchers("/api/user/**").permitAll()
-                    .requestMatchers("/api/chat/**").permitAll()
-                    .requestMatchers("/api/chat").permitAll()
                     .anyRequest().authenticated()
                 )
                 .exceptionHandling(except -> except.authenticationEntryPoint(new FailedAuthenticationEntryPoint()))
