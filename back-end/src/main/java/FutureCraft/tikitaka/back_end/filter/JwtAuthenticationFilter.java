@@ -28,13 +28,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
             try {
                 String token = parseBearerToken(request);
-                System.out.println("토큰 : " + token);
                 if (token == null) {
                     filterChain.doFilter(request, response);
                     return;
                 }
                 String id = jwtProvider.validate(token);
-                System.out.println("아이디 : " + id);
+                System.out.println("필터 토큰 : " + id);
                 if (id == null) {
                     filterChain.doFilter(request, response);
                     return; 

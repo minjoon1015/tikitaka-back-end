@@ -21,28 +21,27 @@
     <input type="text" id="messageInput" placeholder="Type a message" onkeydown="onKeyDownHandler(event)" />
     <button onclick="sendMessage()">Send</button>
     <script>
-        const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiaWF0IjoxNzQ1NzY0NTM3LCJleHAiOjE3NDU3NjgxMzd9.Tu-DuaF8KHbdcM5pswIbUbAdCm1lpFsJ9vj6Sq75Y50.eyJzdWIiOiJ0ZXN0IiwiaWF0IjoxNzQ1NzYyOTAxLCJleHAiOjE3NDU3NjY1MDF9.iMlhVmDEDT_Kk0ZYMxjdGKw-rAV_isK9Tw8R5lLNIKk";
-        const socket = new SockJS('http://localhost:8080/api/chat');
+        const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0NSIsImlhdCI6MTc0NjAyNjQ4NiwiZXhwIjoxNzQ2MDMwMDg2fQ.enxMtA2OUlfxhrGpkmweqw2V1i_Bm-LvUC8uAtDM6G4";
+        const socket = new SockJS('http://localhost:8080/socket/conn');
         const stompClient = Stomp.over(socket);
+        const chatId = 5;
 
         // 연결 및 채팅 메시지 받아오기
-        stompClient.connect({
-            Authorization: `Bearer ${token}`
-        }, (frame) => {
-            stompClient.subscribe('/topic/chat', (messageOutput) => {
-                console.log(messageOutput.body);
-                const chatBox = document.getElementById('chatBox');
-                chatBox.innerHTML += '<br>' + messageOutput.body;
+        stompClient.connect({}, () => {
+            stompClient.subscribe(`topic/${chatId}`, (messageOutput) => {
+                messageOutput.body;
             });
         });
 
         function sendMessage() {
             const message = document.getElementById('messageInput').value;
             const sendJson = {
-                "message": message,
-                "topic":"/topic/chat"
+            	"chatId":chatId,
+				"content":message
             };
-            stompClient.send('/chat/send', {}, JSON.stringify(sendJson));
+            stompClient.send('app/send', {
+                "token":token
+            }, JSON.stringify(sendJson));
             document.getElementById('messageInput').value = "";
         }
 
