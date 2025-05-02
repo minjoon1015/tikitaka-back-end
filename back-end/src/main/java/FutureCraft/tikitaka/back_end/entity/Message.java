@@ -1,18 +1,20 @@
-package FutureCraft.tikitaka.back_end.entity.document;
+package FutureCraft.tikitaka.back_end.entity;
 
 import java.time.LocalDateTime;
 
 import org.bson.types.ObjectId;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import FutureCraft.tikitaka.back_end.dto.request.chat.ChatMessageRequestDto;
-import jakarta.persistence.Id;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Document(collection = "message")
 @Getter
 @Setter
+@NoArgsConstructor
 public class Message {
     @Id
     private ObjectId id;

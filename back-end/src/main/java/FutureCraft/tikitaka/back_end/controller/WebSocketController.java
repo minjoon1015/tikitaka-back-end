@@ -24,9 +24,10 @@ public class WebSocketController {
     @MessageMapping("/send")
     public void send(@Payload ChatMessageRequestDto requestDto, @Header("token") String token) {
         String senderId = jwtProvider.validate(token);
-        requestDto.setSenderId(senderId);
         requestDto.setWriteDateTime(LocalDateTime.now());
-        StringBuffer topic = new StringBuffer("topic/");
+        StringBuffer topic = new StringBuffer("/topic/chatting/");
+        if (senderId == null) messagingTemplate.convertAndSend(topic.toString(), "토큰 인증 실패");
+        requestDto.setSenderId(senderId);
         topic.append(requestDto.getChatId());
         ChatMessageResponseDto responseDto = messageService.save(requestDto);
 
@@ -34,7 +35,10 @@ public class WebSocketController {
             messagingTemplate.convertAndSend(topic.toString(), "메시지 전송 실패");
         }
         else {
+            System.out.println(topic);
             messagingTemplate.convertAndSend(topic.toString(), responseDto);
         }
     }
+
 }
+

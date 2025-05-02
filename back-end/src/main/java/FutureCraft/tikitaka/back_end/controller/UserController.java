@@ -3,6 +3,7 @@ package FutureCraft.tikitaka.back_end.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +15,7 @@ import FutureCraft.tikitaka.back_end.dto.request.sign.SignUpRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.user.UserSearchRequestDto;
 import FutureCraft.tikitaka.back_end.dto.response.sign.SignInResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.sign.SignUpResponseDto;
+import FutureCraft.tikitaka.back_end.dto.response.user.UserMeResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.user.UserSearchResponseDto;
 import FutureCraft.tikitaka.back_end.service.UserService;
 
@@ -38,5 +40,9 @@ public class UserController {
         UserSearchRequestDto dto = new UserSearchRequestDto(searchId);
         return userService.search(dto);
     }
-    
+
+    @GetMapping("me")
+    public ResponseEntity<? super UserMeResponseDto> me(@AuthenticationPrincipal String id) {
+        return userService.me(id);
+    }
 }

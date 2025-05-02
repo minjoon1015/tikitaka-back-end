@@ -20,16 +20,30 @@
     <div id="chatBox"></div>
     <input type="text" id="messageInput" placeholder="Type a message" onkeydown="onKeyDownHandler(event)" />
     <button onclick="sendMessage()">Send</button>
+
+    <div id="alarm">
+        친구요청
+    </div>
+    
     <script>
-        const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0NSIsImlhdCI6MTc0NjAyNjQ4NiwiZXhwIjoxNzQ2MDMwMDg2fQ.enxMtA2OUlfxhrGpkmweqw2V1i_Bm-LvUC8uAtDM6G4";
+        const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiaWF0IjoxNzQ2MTc3MTk5LCJleHAiOjE3NDYxODA3OTl9.gVuHq3pFVB05UpJNGAsUM7a5e5uHWVzoPWzyzzuVSik";
         const socket = new SockJS('http://localhost:8080/socket/conn');
         const stompClient = Stomp.over(socket);
-        const chatId = 5;
+        const chatId = 1;
+        const id = "test";
 
-        // 연결 및 채팅 메시지 받아오기
-        stompClient.connect({}, () => {
-            stompClient.subscribe(`topic/${chatId}`, (messageOutput) => {
+        const header = {
+            "Authorization":"Bearer " + token
+        };
+
+        stompClient.connect(header, () => {
+            stompClient.subscribe(`/topic/chatting/${chatId}`, (messageOutput) => { 
                 messageOutput.body;
+            });
+
+            stompClient.subscribe(`/queue/${id}`, (messageOutput) => {
+                const alarm = document.getElementById("alarm");
+                alarm.innerHTML += messageOutput.body;
             });
         });
 
@@ -39,7 +53,7 @@
             	"chatId":chatId,
 				"content":message
             };
-            stompClient.send('app/send', {
+            stompClient.send('/app/send', {
                 "token":token
             }, JSON.stringify(sendJson));
             document.getElementById('messageInput').value = "";

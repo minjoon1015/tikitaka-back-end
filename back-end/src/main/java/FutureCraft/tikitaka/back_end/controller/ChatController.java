@@ -11,15 +11,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import FutureCraft.tikitaka.back_end.dto.request.chat.ChatMessageListRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.chat.ChatRoomAddFriendListRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.chat.ChatRoomAddRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.chat.ChatRoomCreateRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.chat.ChatRoomListRequestDto;
+import FutureCraft.tikitaka.back_end.dto.response.chat.ChatMessageListResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.ChatRoomAddFriendListResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.ChatRoomAddResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.ChatRoomCreateResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.ChatRoomListResponseDto;
 import FutureCraft.tikitaka.back_end.service.ChatRoomService;
+import FutureCraft.tikitaka.back_end.service.MessageService;
 import FutureCraft.tikitaka.back_end.service.UserChatService;
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +32,7 @@ import lombok.RequiredArgsConstructor;
 public class ChatController {
     private final ChatRoomService chatRoomService;
     private final UserChatService userChatService;
+    private final MessageService messageService;
 
     @PostMapping("create")
     public ResponseEntity<? super ChatRoomCreateResponseDto> create(@RequestBody ChatRoomCreateRequestDto requestDto, @AuthenticationPrincipal String id) {
@@ -55,4 +59,11 @@ public class ChatController {
         ChatRoomListRequestDto requestDto = new ChatRoomListRequestDto(id);
         return chatRoomService.list(requestDto);
     }
+
+    @GetMapping("message/list/{chatId}")
+    public ResponseEntity<? super ChatMessageListResponseDto> messageList(@PathVariable("chatId") Integer chatId) {
+        ChatMessageListRequestDto requestDto = new ChatMessageListRequestDto(chatId);
+        return messageService.messageList(requestDto);
+    }
+    
 }

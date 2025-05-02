@@ -14,6 +14,7 @@ import FutureCraft.tikitaka.back_end.dto.request.sign.SignUpRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.user.UserSearchRequestDto;
 import FutureCraft.tikitaka.back_end.dto.response.sign.SignInResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.sign.SignUpResponseDto;
+import FutureCraft.tikitaka.back_end.dto.response.user.UserMeResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.user.UserSearchResponseDto;
 import FutureCraft.tikitaka.back_end.entity.User;
 import FutureCraft.tikitaka.back_end.provider.JwtProvider;
@@ -72,6 +73,17 @@ public class UserService {
         } catch (Exception e) {
             e.printStackTrace();  
             return UserSearchResponseDto.DbError();
+        }
+    }
+
+    public ResponseEntity<? super UserMeResponseDto> me(String id) {
+        try {
+            boolean exists = userRepository.existsById(id);
+            if (!exists) return UserMeResponseDto.badRequest();
+            return UserMeResponseDto.success(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return UserMeResponseDto.DbError();
         }
     }
 }   
