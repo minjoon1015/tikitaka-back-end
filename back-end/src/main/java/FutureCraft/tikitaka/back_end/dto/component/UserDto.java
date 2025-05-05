@@ -3,11 +3,13 @@ package FutureCraft.tikitaka.back_end.dto.component;
 import FutureCraft.tikitaka.back_end.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserDto {
     String userId;
     String userName;

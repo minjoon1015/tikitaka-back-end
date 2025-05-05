@@ -14,12 +14,16 @@ import FutureCraft.tikitaka.back_end.dto.component.UserDto;
 import FutureCraft.tikitaka.back_end.dto.component.UserStatusDto;
 import FutureCraft.tikitaka.back_end.dto.request.friend.FriendAcceptRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.friend.FriendAddListRequestDto;
+import FutureCraft.tikitaka.back_end.dto.request.friend.FriendCancleRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.friend.FriendListRequestDto;
+import FutureCraft.tikitaka.back_end.dto.request.friend.FriendReceiveListRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.friend.FriendRejectRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.friend.FriendSendRequestDto;
 import FutureCraft.tikitaka.back_end.dto.response.friend.FriendAcceptResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.friend.FriendAddListResponseDto;
+import FutureCraft.tikitaka.back_end.dto.response.friend.FriendCancleResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.friend.FriendListResponseDto;
+import FutureCraft.tikitaka.back_end.dto.response.friend.FriendReceiveListResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.friend.FriendRejectResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.friend.FriendSendResponseDto;
 import FutureCraft.tikitaka.back_end.entity.Friend;
@@ -45,7 +49,7 @@ public class FriendService {
             }
             
             if (requestDto.getFriend1Id().equals(requestDto.getFriend2Id())) {
-                return FriendSendResponseDto.duplicationRequest();
+                return FriendSendResponseDto.badRequest();
             }
 
             String[] users = {requestDto.getFriend1Id(), requestDto.getFriend2Id()};
@@ -56,13 +60,13 @@ public class FriendService {
                 return FriendSendResponseDto.duplicationRequest();
             }
 
-            Friend friend = new Friend(users[0], users[1], Status.SEND);
+            Friend friend = new Friend(users[0], users[1], Status.SEND, requestDto.getFriend1Id(), requestDto.getFriend2Id());
             friendRepository.save(friend);
             return FriendSendResponseDto.success();
 
         } catch (Exception e) {
             e.printStackTrace();
-            return FriendSendResponseDto.DbError();    
+            return FriendSendResponseDto.DbError();
         }
     } 
 
@@ -75,12 +79,10 @@ public class FriendService {
             if (!existsByPk) {
                 return FriendAcceptResponseDto.badRequest();
             }
-            // Optional<Friend> friend = friendRepository.findById(pk);
-            // if (friend.get())
 
-            
             Friend friend = friendRepository.findById(pk).get();
-            if (!friend.getStatus().equals(Status.SEND)) {
+            System.out.println(friend.getReceiverId());
+            if (!friend.getStatus().equals(Status.SEND) || !friend.getReceiverId().equals(requestDto.getFriend1Id())) {
                 return FriendAcceptResponseDto.badRequest();
             }
             friend.setStatus(Status.ACCEPT);
@@ -92,8 +94,29 @@ public class FriendService {
         }
     }
 
+    public ResponseEntity<? super FriendCancleResponseDto> cancle(FriendCancleRequestDto requestDto) {
+        try {
+            String[] pks = {requestDto.getFriend1Id(), requestDto.getFriend2Id()};
+            Arrays.sort(pks);
+            FriendPk pk = new FriendPk(pks[0], pks[1]);
+            boolean existsByPk = friendRepository.existsById(pk);
+            if (!existsByPk) {
+                return FriendCancleResponseDto.badRequest();
+            }
+            Friend friend = friendRepository.findById(pk).get();
+            if (!friend.getSenderId().equals(requestDto.getFriend1Id())) {
+                return FriendCancleResponseDto.badRequest();
+            }
+            friendRepository.deleteById(pk);
+            return FriendCancleResponseDto.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return FriendCancleResponseDto.DbError();
+        }
+    }
+
     public ResponseEntity<? super FriendRejectResponseDto> reject(FriendRejectRequestDto requestDto) {
-        try {   
+        try {
             String[] pks = {requestDto.getFriend1Id(), requestDto.getFriend2Id()};
             Arrays.sort(pks);
             FriendPk pk = new FriendPk(pks[0], pks[1]);
@@ -124,7 +147,6 @@ public class FriendService {
                 friendList.add(new UserDto(user.getId(), user.getName(), user.getProfileImage()));
             }
             return FriendListResponseDto.success(friendList);
-
         } catch (Exception e) {
             e.printStackTrace();
             return FriendListResponseDto.DbError();
@@ -140,8 +162,22 @@ public class FriendService {
                     if (!user.getId().equals(requestDto.getId())) {
                         String[] ids = {user.getId(), requestDto.getId()};
                         Arrays.sort(ids);
-                        String statusString = userRepository.searchFriendAndUserByStatus(ids[0], ids[1]);
-                        Status status = statusString == null ? Status.NONE : Status.valueOf(statusString);
+                        Friend friend = friendRepository.searchFriendAndUserByStatus(ids[0], ids[1]);
+                        Status status = Status.NONE;
+                        if (friend == null) {
+                            status = Status.NONE;
+                        }
+                        else if (friend.getStatus().equals(Status.ACCEPT)) {
+                            status = Status.ACCEPT;
+                        }
+                        else if (friend.getStatus().equals(Status.SEND)) {
+                            if (friend.getSenderId().equals(requestDto.getId())) {
+                                status = Status.SEND;
+                            }
+                            else if (friend.getReceiverId().equals(requestDto.getId())) {
+                                status = Status.RECEIVED;
+                            }
+                        }
                         userList.add(new UserStatusDto(user, status));
                     }
                 }
@@ -149,6 +185,20 @@ public class FriendService {
             } catch (Exception e) {
             e.printStackTrace();
             return FriendAddListResponseDto.DbError();
+        }
+    }
+
+    public ResponseEntity<? super FriendReceiveListResponseDto> receiveList(FriendReceiveListRequestDto requestDto) {
+        try {
+            List<Friend> friends = friendRepository.findAllByReceiverIdAndStatus(requestDto.getId(), Status.SEND);
+            List<String> ids = new ArrayList<>();
+            for (Friend friend : friends) {
+                ids.add(friend.getSenderId());
+            }
+            return FriendReceiveListResponseDto.success(ids);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return FriendReceiveListResponseDto.DbError();
         }
     }
 }

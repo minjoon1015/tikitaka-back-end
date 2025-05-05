@@ -4,5 +4,5 @@ public enum Status {
     SEND,
     ACCEPT,
     NONE,
-    REJECT
+    RECEIVED
 }

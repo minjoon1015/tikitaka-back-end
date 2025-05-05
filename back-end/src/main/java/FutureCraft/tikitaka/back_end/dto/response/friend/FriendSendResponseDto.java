@@ -27,4 +27,9 @@ public class FriendSendResponseDto extends ResponseDto {
         FriendSendResponseDto response = new FriendSendResponseDto("Success");
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    public static ResponseEntity<FriendSendResponseDto> badRequest() {
+        FriendSendResponseDto response = new FriendSendResponseDto("Bad Request");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 }

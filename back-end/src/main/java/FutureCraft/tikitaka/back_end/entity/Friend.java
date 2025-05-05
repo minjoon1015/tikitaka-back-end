@@ -9,7 +9,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,10 +28,16 @@ public class Friend {
     String friend2Id;
     @Enumerated(EnumType.STRING)
     Status status;
+    @Column(name = "sender_id")
+    String senderId;
+    @Column(name = "receiver_id")
+    String receiverId;
 
-    public Friend(String friend1Id, String friend2Id, Status status) {
+    public Friend(String friend1Id, String friend2Id, Status status, String senderId, String receiverId) {
         this.friend1Id = friend1Id;
         this.friend2Id = friend2Id;
         this.status = status;
+        this.senderId = senderId;
+        this.receiverId = receiverId;
     }
 }
