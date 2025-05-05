@@ -11,6 +11,8 @@ CREATE TABLE friend (
   user_id   VARCHAR(50) NOT NULL,
   friend_id VARCHAR(50) NOT NULL,
   status    VARCHAR(50) NOT NULL,
+  sender_id varchar(50) NOT NULL,
+  receiver_id varchar(50) not null,
   PRIMARY KEY (user_id, friend_id),
   FOREIGN KEY (user_id) REFERENCES user(id),
   FOREIGN KEY (friend_id) REFERENCES user(id),
