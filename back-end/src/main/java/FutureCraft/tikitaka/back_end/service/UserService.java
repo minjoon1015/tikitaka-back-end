@@ -43,26 +43,24 @@ public class UserService {
     }
 
     public ResponseEntity<? super SignInResponseDto> signIn(SignUpRequestDto requestDto) {
-        try {    
-            if (requestDto.getId() == "" || requestDto.getId() == null) {
-                return SignInResponseDto.failedId();
-            }
+        try {
+            boolean existsId = userRepository.existsById(requestDto.getId());
+            if (!existsId) return SignInResponseDto.failedId();
             
-            if (requestDto.getPassword() == "" || requestDto.getPassword() == null) {
-                return SignInResponseDto.failedPassword();
-            }
+            User user = userRepository.findById(requestDto.getId()).get();
+            if (!user.getPassword().equals(requestDto.getPassword())) return SignInResponseDto.failedPassword();
 
+            String token = jwtProvider.create(requestDto.getId());
+            return SignInResponseDto.success(token);
         } catch (Exception e) {
             e.printStackTrace();
             return SignInResponseDto.DbError();
         }
-        String token = jwtProvider.create(requestDto.getId());
-        return SignInResponseDto.success(token);
     }
 
     public ResponseEntity<? super UserSearchResponseDto> search(UserSearchRequestDto dto) {
         try {
-            if (dto.getSearchId() == null) return UserSearchResponseDto.badRequest();
+            if (dto.getSearchId() == null || dto.getSearchId().equals("")) return UserSearchResponseDto.badRequest();
             PageRequest pageRequest = PageRequest.of(0, 100);
             List<User> users = userRepository.findUsersStartingWith(dto.getSearchId(), pageRequest);
             List<UserDto> userList = new ArrayList<>();

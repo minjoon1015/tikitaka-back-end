@@ -23,7 +23,7 @@ import FutureCraft.tikitaka.back_end.service.UserService;
 @RequestMapping("/api/user/")
 public class UserController {
     @Autowired
-    private UserService userService;  
+    private UserService userService;
 
     @PostMapping("signUp")
     public ResponseEntity<? super SignUpResponseDto> signUp(@RequestBody SignUpRequestDto requestDto) {
