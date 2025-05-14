@@ -1,7 +1,9 @@
 package FutureCraft.tikitaka.back_end.dto.response.friend;
 
+import java.util.HashMap;
 import java.util.List;
 
+import FutureCraft.tikitaka.back_end.dto.component.FriendRequestDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -12,18 +14,18 @@ import lombok.Setter;
 @Getter
 @Setter
 public class FriendReceiveListResponseDto extends ResponseDto {
-    List<String> receivedList;
+    List<FriendRequestDto> receivedList;
 
     public FriendReceiveListResponseDto(String message) {
         super(message);
     }
 
-    public FriendReceiveListResponseDto(String message, List<String> receivedList) {
+    public FriendReceiveListResponseDto(String message, List<FriendRequestDto> receivedList) {
         super(message);
         this.receivedList = receivedList;
     }
 
-    public static ResponseEntity<FriendReceiveListResponseDto> success(List<String> receiveList) {
+    public static ResponseEntity<FriendReceiveListResponseDto> success(List<FriendRequestDto> receiveList) {
         FriendReceiveListResponseDto responseDto = new FriendReceiveListResponseDto("Success", receiveList);
         return ResponseEntity.status(HttpStatus.OK).body(responseDto);
     }

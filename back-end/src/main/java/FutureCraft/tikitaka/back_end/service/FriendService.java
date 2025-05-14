@@ -1,10 +1,8 @@
 package FutureCraft.tikitaka.back_end.service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
+import FutureCraft.tikitaka.back_end.dto.component.FriendRequestDto;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -191,11 +189,16 @@ public class FriendService {
     public ResponseEntity<? super FriendReceiveListResponseDto> receiveList(FriendReceiveListRequestDto requestDto) {
         try {
             List<Friend> friends = friendRepository.findAllByReceiverIdAndStatus(requestDto.getId(), Status.SEND);
-            List<String> ids = new ArrayList<>();
+
+            List<FriendRequestDto> list = new ArrayList<>();
             for (Friend friend : friends) {
-                ids.add(friend.getSenderId());
+                User user = userRepository.findById(friend.getFriend1Id()).orElse(null);
+                if(user != null) {
+                    FriendRequestDto friendRequestDto = new FriendRequestDto(friend.getFriend1Id(), user.getId());
+                    list.add(friendRequestDto);
+                }
             }
-            return FriendReceiveListResponseDto.success(ids);
+            return FriendReceiveListResponseDto.success(list);
         } catch (Exception e) {
             e.printStackTrace();
             return FriendReceiveListResponseDto.DbError();
