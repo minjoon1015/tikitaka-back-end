@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import FutureCraft.tikitaka.back_end.dto.component.ChatMessageListDto;
+import FutureCraft.tikitaka.back_end.dto.object.ChatMessageListDto;
 import FutureCraft.tikitaka.back_end.dto.request.chat.ChatMessageListRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.chat.ChatMessageRequestDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.ChatMessageListResponseDto;

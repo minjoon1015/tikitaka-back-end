@@ -8,8 +8,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import FutureCraft.tikitaka.back_end.common.Status;
-import FutureCraft.tikitaka.back_end.dto.component.UserDto;
-import FutureCraft.tikitaka.back_end.dto.component.UserStatusDto;
+import FutureCraft.tikitaka.back_end.dto.object.UserDto;
+import FutureCraft.tikitaka.back_end.dto.object.UserStatusDto;
 import FutureCraft.tikitaka.back_end.dto.request.friend.FriendAcceptRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.friend.FriendAddListRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.friend.FriendCancleRequestDto;

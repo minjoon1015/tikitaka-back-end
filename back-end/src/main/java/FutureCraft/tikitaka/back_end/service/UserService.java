@@ -9,12 +9,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
-import FutureCraft.tikitaka.back_end.dto.component.UserDto;
+import FutureCraft.tikitaka.back_end.dto.object.UserDto;
 import FutureCraft.tikitaka.back_end.dto.request.sign.SignUpRequestDto;
+import FutureCraft.tikitaka.back_end.dto.request.user.MemberUpdateRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.user.UserSearchRequestDto;
+import FutureCraft.tikitaka.back_end.dto.response.ResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.sign.SignInResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.sign.SignUpResponseDto;
-import FutureCraft.tikitaka.back_end.dto.response.user.UserMeResponseDto;
+import FutureCraft.tikitaka.back_end.dto.response.user.LoginUserDataResponseDto;
+import FutureCraft.tikitaka.back_end.dto.response.user.MemberUpdateResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.user.UserSearchResponseDto;
 import FutureCraft.tikitaka.back_end.entity.User;
 import FutureCraft.tikitaka.back_end.provider.JwtProvider;
@@ -74,14 +77,37 @@ public class UserService {
         }
     }
 
-    public ResponseEntity<? super UserMeResponseDto> me(String id) {
+    public ResponseEntity<? super LoginUserDataResponseDto> loginUserData(String id) {
         try {
-            boolean exists = userRepository.existsById(id);
-            if (!exists) return UserMeResponseDto.badRequest();
-            return UserMeResponseDto.success(id);
+            if (id.equals("") || id == null) return LoginUserDataResponseDto.badRequest();
+            User user = userRepository.findById(id).get();
+            if (user == null) return LoginUserDataResponseDto.badRequest();
+            return LoginUserDataResponseDto.success(user);
         } catch (Exception e) {
             e.printStackTrace();
-            return UserMeResponseDto.DbError();
+            return LoginUserDataResponseDto.DbError();
         }
     }
-}   
+
+    public ResponseEntity<?super MemberUpdateResponseDto> update(MemberUpdateRequestDto requestDto, String id) {
+        try {
+            if (requestDto == null || (id.equals("") || id == null)) return MemberUpdateResponseDto.badRequest();
+            User user = userRepository.findById(id).get();
+            if (user == null) return MemberUpdateResponseDto.badRequest();
+            if (!requestDto.getName().equals("")) {
+                user.updateName(requestDto.getName());
+            }
+            if (!requestDto.getPassword().equals("")) {
+                user.updatePassword(requestDto.getPassword());
+            }
+            if (!requestDto.getProfileImage().equals("")) {
+                user.updateProfileImage(requestDto.getProfileImage());
+            }
+            userRepository.save(user);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return MemberUpdateResponseDto.DbError();
+        }
+        return MemberUpdateResponseDto.success();
+    }
+}

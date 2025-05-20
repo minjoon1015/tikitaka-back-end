@@ -1,4 +1,4 @@
-package FutureCraft.tikitaka.back_end.dto.component;
+package FutureCraft.tikitaka.back_end.dto.object;
 
 import FutureCraft.tikitaka.back_end.entity.User;
 import lombok.AllArgsConstructor;

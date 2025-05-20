@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import FutureCraft.tikitaka.back_end.dto.component.ChatRoomListDto;
+import FutureCraft.tikitaka.back_end.dto.object.ChatRoomListDto;
 import FutureCraft.tikitaka.back_end.entity.ChatRoom;
 
 

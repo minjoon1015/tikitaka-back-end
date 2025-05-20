@@ -1,5 +1,6 @@
 
 
+
 package FutureCraft.tikitaka.back_end.dto.response.user;
 
 import java.util.List;
@@ -7,7 +8,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import FutureCraft.tikitaka.back_end.dto.component.UserDto;
+import FutureCraft.tikitaka.back_end.dto.object.UserDto;
 import FutureCraft.tikitaka.back_end.dto.response.ResponseDto;
 import lombok.Getter;
 import lombok.Setter;

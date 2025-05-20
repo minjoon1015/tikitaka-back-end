@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import FutureCraft.tikitaka.back_end.common.Status;
-import FutureCraft.tikitaka.back_end.dto.component.AlramMessageDto;
+import FutureCraft.tikitaka.back_end.dto.object.AlramMessageDto;
 import FutureCraft.tikitaka.back_end.dto.request.friend.FriendAcceptRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.friend.FriendAddListRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.friend.FriendCancleRequestDto;

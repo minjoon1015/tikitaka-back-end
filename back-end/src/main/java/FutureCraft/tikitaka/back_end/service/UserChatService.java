@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import FutureCraft.tikitaka.back_end.common.Status;
-import FutureCraft.tikitaka.back_end.dto.component.UserDto;
+import FutureCraft.tikitaka.back_end.dto.object.UserDto;
 import FutureCraft.tikitaka.back_end.dto.request.chat.ChatRoomAddFriendListRequestDto;
 import FutureCraft.tikitaka.back_end.dto.request.chat.ChatRoomAddRequestDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.ChatRoomAddFriendListResponseDto;

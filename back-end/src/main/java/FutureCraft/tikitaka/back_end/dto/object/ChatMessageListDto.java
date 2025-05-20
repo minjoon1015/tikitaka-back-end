@@ -1,4 +1,5 @@
-package FutureCraft.tikitaka.back_end.dto.component;
+
+package FutureCraft.tikitaka.back_end.dto.object;
 
 import java.time.LocalDateTime;
 

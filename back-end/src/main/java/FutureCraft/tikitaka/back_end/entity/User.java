@@ -28,4 +28,16 @@ public class User {
         this.password = dto.getPassword();
         this.profileImage = null;
     }
+    
+    public void updateName(String name) {
+        this.name = name;
+    }
+
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
+    public void updateProfileImage(String profileImage) {
+        this.profileImage = profileImage;
+    }
 }

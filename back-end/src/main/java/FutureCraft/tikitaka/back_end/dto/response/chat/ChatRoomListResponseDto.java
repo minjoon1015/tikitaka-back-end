@@ -5,7 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import FutureCraft.tikitaka.back_end.dto.component.ChatRoomListDto;
+import FutureCraft.tikitaka.back_end.dto.object.ChatRoomListDto;
 import FutureCraft.tikitaka.back_end.dto.response.ResponseDto;
 import lombok.Getter;
 import lombok.Setter;
