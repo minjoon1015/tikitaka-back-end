@@ -2,12 +2,16 @@ package FutureCraft.tikitaka.back_end.config;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 
+import jakarta.annotation.PostConstruct;
+
+@Configuration
 public class S3Config {
     @Value("${cloud.aws.credentials.accessKey}")
     private String accessKey;
@@ -17,6 +21,13 @@ public class S3Config {
 
     @Value("${cloud.aws.region.static}")
     private String region;
+
+    @PostConstruct
+    public void printKeys() {
+        System.out.println("AWS Access Key: " + accessKey);
+        System.out.println("AWS Secret Key: " + secretKey);
+        System.out.println("AWS Region: " + region);
+    }
 
     @Bean
     public AmazonS3Client amazonS3Client() {

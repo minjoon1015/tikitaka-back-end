@@ -1,5 +1,5 @@
 package FutureCraft.tikitaka.back_end.common;
 
-public enum AlarmType {
+public enum NotificationType {
     CHAT, FRIEND_REQUEST
 }

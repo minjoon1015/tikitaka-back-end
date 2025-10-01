@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   app:
     build: .
@@ -20,6 +19,8 @@ services:
       - ./gradle:/app/gradle
       - ./gradlew:/app/gradlew
     command: ./gradlew bootRun
+    env_file:
+      - .env
 
   mysql:
     image: mysql:8.0

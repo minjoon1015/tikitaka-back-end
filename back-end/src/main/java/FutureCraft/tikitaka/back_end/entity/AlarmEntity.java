@@ -2,7 +2,7 @@ package FutureCraft.tikitaka.back_end.entity;
 
 import java.time.LocalDateTime;
 
-import FutureCraft.tikitaka.back_end.common.AlarmType;
+import FutureCraft.tikitaka.back_end.common.NotificationType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -25,13 +25,13 @@ public class AlarmEntity {
     private Integer id;
     private String userId;
     @Enumerated(EnumType.STRING)
-    private AlarmType alarmTypetype;
+    private NotificationType alarmType;
     private String referenceId;
     private LocalDateTime createAt;
 
-    public AlarmEntity(String userId, AlarmType alarmType, String referenceId, LocalDateTime createAt) {
+    public AlarmEntity(String userId, NotificationType alarmType, String referenceId, LocalDateTime createAt) {
         this.userId = userId;
-        this.alarmTypetype = alarmType;
+        this.alarmType = alarmType;
         this.referenceId = referenceId;
         this.createAt = createAt;
     }
