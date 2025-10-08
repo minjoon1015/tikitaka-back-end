@@ -4,11 +4,13 @@ import java.io.Serializable;
 
 import jakarta.persistence.Embeddable;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Embeddable
 @Getter
 @Setter
+@NoArgsConstructor
 public class ChatRoomParticipantPk implements Serializable {
     private String userId;
     private Integer chatRoomId;

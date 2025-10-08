@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 
-import FutureCraft.tikitaka.back_end.dto.object.UserInfoDto;
+import FutureCraft.tikitaka.back_end.dto.object.SimpleUserDto;
 import FutureCraft.tikitaka.back_end.dto.request.user.UpdatePasswordRequestDto;
 import FutureCraft.tikitaka.back_end.dto.response.ResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.user.GetUserMeResponseDto;
@@ -32,7 +32,7 @@ public class UserServiceImplement implements UserService {
             if (userEntity == null) {
                 return ResponseDto.badRequest();
             }
-            return GetUserMeResponseDto.success(new UserInfoDto(userEntity.getId(), userEntity.getName(), userEntity.getProfileImage()));
+            return GetUserMeResponseDto.success(new SimpleUserDto(userEntity.getId(), userEntity.getName(), userEntity.getProfileImage()));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseDto.databaseError();
@@ -57,7 +57,7 @@ public class UserServiceImplement implements UserService {
                 userEntity.setName(name);
             }
             UserEntity saved = userRepository.save(userEntity);
-            return UpdateUserInfoResponseDto.success(new UserInfoDto(saved.getId(), saved.getName(), saved.getProfileImage()));
+            return UpdateUserInfoResponseDto.success(new SimpleUserDto(saved.getId(), saved.getName(), saved.getProfileImage()));
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseDto.databaseError();
