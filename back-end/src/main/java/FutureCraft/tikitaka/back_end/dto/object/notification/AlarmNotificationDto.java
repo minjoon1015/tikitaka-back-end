@@ -14,12 +14,12 @@ import lombok.Setter;
 @Setter
 public class AlarmNotificationDto extends NotificationDto {
     private String senderId;
-    private LocalDateTime createAt;
+    private String referenceId;
 
     public AlarmNotificationDto(NotificationType type, String referenceId, String senderId, LocalDateTime createAt) {
-        super(type, referenceId);
+        super(type, createAt);
         this.senderId = senderId;
-        this.createAt = createAt;
+        this.referenceId = referenceId;
     }
 
     public static ResponseEntity<AlarmNotificationDto> success(String senderId, String referenceId, LocalDateTime createAt) {

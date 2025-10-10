@@ -73,4 +73,5 @@ CREATE TABLE friend (
   create_at   DATETIME    NOT NULL,
   PRIMARY KEY (id),
   CONSTRAINT FK_user_TO_friend FOREIGN KEY (sender_id) REFERENCES user(id),
-  CONSTRAINT FK_user_TO_friend1_
+  CONSTRAINT FK_user_TO_friend1 FOREIGN KEY (receiver_id) REFERENCES user(id)
+);

@@ -64,8 +64,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corseConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         String frontUrl = "http://localhost:3000";
-        config.setAllowedOrigins(List.of(frontUrl));
-        config.setAllowedMethods(List.of("*"));
+        String testUrl = "http://127.0.0.1:5500";
+        config.setAllowedOrigins(List.of(frontUrl, testUrl));
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
 

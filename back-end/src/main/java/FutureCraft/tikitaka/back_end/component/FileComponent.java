@@ -1,4 +1,4 @@
-package FutureCraft.tikitaka.back_end.service.implement;
+package FutureCraft.tikitaka.back_end.component;
 
 import java.util.UUID;
 
@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
-public class FileService {
+public class FileComponent {
     private final AmazonS3Client amazonS3Client;
 
     @Value("${cloud.aws.s3.bucket}")

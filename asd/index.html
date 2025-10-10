@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STOMP 채팅 테스트</title>
+  <style>
+    /* 기존 CSS 스타일은 유지 */
+    body {
+      background: #f2f3f5;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .chat-container {
+      width: 400px;
+      height: 600px;
+      background: #fff;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    .chat-header {
+      background: #0078ff;
+      color: white;
+      padding: 16px;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .message {
+      max-width: 70%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .message.you {
+      align-self: flex-end;
+      background: #0078ff;
+      color: white;
+      border-bottom-right-radius: 2px;
+    }
+
+    .message.other {
+      align-self: flex-start;
+      background: #e4e6eb;
+      color: #333;
+      border-bottom-left-radius: 2px;
+    }
+
+    .chat-input {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+
+    .chat-input input {
+      flex: 1;
+      border: none;
+      outline: none;
+      padding: 14px;
+      font-size: 14px;
+    }
+
+    .chat-input button {
+      background: #0078ff;
+      color: white;
+      border: none;
+      padding: 0 20px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .chat-input button:hover {
+      background: #0062cc;
+    }
+
+    .chat-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">STOMP 채팅 (chatRoomId=5)</div>
+    <div class="chat-messages" id="chat-box"></div>
+    <div class="chat-input">
+      <input type="text" id="messageInput" placeholder="메시지를 입력하세요..." />
+      <button id="sendBtn">전송</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sockjs-client/dist/sockjs.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+
+  <script>
+    const chatBox = document.getElementById('chat-box');
+    const input = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    
+    // **수정 사항:** STOMP 2.3.3 버전을 사용할 경우, 클라이언트 객체를 생성하기 위해 Stomp 전역 객체가 필요합니다.
+    // SockJS를 사용하는 경우, Stomp.over(socket) 패턴을 사용하는 것이 일반적입니다.
+
+    function addMessage(text, type='you') {
+      const div = document.createElement('div');
+      div.classList.add('message', type);
+      div.textContent = text;
+      chatBox.appendChild(div);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // JWT Bearer Token (⚠️ 반드시 유효한 토큰으로 교체하세요!)
+    const token = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhc2Rhc2QiLCJpYXQiOjE3NTk5OTUxODUsImV4cCI6MTc1OTk5ODc4NX0.dR-WtUWnYDzkgBaYLKDgeDyfkiax4Ewo0SyYMnCjONQ";
+
+    // 1. SockJS 연결 객체 생성
+    const socket = new SockJS('http://localhost:8080/ws');
+    
+    // 2. STOMP 클라이언트 객체 생성 (stomp.js 2.3.3 방식)
+    const stompClient = Stomp.over(socket);
+
+    // STOMP 디버그 로그 활성화
+    stompClient.debug = (str) => {
+      console.log('[STOMP DEBUG]', str);
+    };
+    
+    // STOMP 연결 설정
+    const headers = {
+      Authorization: `Bearer ${token}`
+    };
+
+    stompClient.connect(headers, 
+      // ✅ 연결 성공 (Connect Callback)
+      (frame) => {
+        console.log('✅✅✅ STOMP 연결 성공! (CONNECTED) ✅✅✅', frame);
+
+        // 알림 구독
+        stompClient.subscribe('/user/queue/notify', (msg) => {
+          console.log('🔔 알림 수신:', msg.body);
+        });
+
+        // chatRoomId=5 구독
+        const chatRoomId = 5;
+        stompClient.subscribe(`/topic/chat/${chatRoomId}`, (msg) => {
+          const data = JSON.parse(msg.body);
+          console.log('💬 수신 메시지:', data);
+          addMessage(data.message, 'other');
+        });
+      }, 
+      // ❌ 연결 에러 (Error Callback)
+      (err) => {
+        console.error('❌❌❌ STOMP 연결 에러 발생! ❌❌❌');
+        console.error('오류 내용:', err);
+        
+        // 연결 에러가 String으로 넘어오는 경우 (STOMP 2.3.3 스타일)
+        if (typeof err === 'string' && err.includes('Authentication failed')) {
+            console.error('🚨🚨🚨 경고: 인증(JWT) 문제 또는 토큰 만료 가능성 높음 🚨🚨🚨');
+        } else if (err.headers && err.headers.message) {
+             // 서버에서 ERROR 프레임에 메시지를 보낸 경우 (최신 버전 스타일)
+             console.error('🚨🚨🚨 서버 오류 메시지:', err.headers.message);
+        }
+        addMessage('연결 실패! 콘솔 로그를 확인하세요.', 'other');
+      }
+    );
+    
+    // 메시지 전송
+    function sendMessage() {
+      if (!stompClient.connected) {
+          console.error("🚫 메시지 전송 실패: STOMP 클라이언트가 연결되지 않았습니다.");
+          return;
+      }
+      
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const body = { chatRoomId: 5, message: msg };
+      
+      // JSON 객체를 문자열로 변환하여 전송
+      stompClient.send(
+        '/app/send',
+        { 'content-type': 'application/json' },
+        JSON.stringify(body)
+      );
+
+      addMessage(msg, 'you');
+      input.value = '';
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    input.addEventListener('keydown', (e) => { if (e.key === 'Enter') sendMessage(); });
+  </script>
+</body>
+</html>

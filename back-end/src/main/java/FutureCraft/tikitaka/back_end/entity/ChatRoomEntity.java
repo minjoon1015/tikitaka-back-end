@@ -2,6 +2,8 @@ package FutureCraft.tikitaka.back_end.entity;
 
 import java.time.LocalDateTime;
 
+import org.springframework.cglib.core.Local;
+
 import FutureCraft.tikitaka.back_end.common.ChatRoomType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -32,5 +34,10 @@ public class ChatRoomEntity {
 
     public ChatRoomEntity(ChatRoomType type) {
         this.type = type;
+    }
+
+    public void updateLastMessageInfo(String message, LocalDateTime time) {
+        this.lastMessage = message;
+        this.lastMessageTime = time;
     }
 }

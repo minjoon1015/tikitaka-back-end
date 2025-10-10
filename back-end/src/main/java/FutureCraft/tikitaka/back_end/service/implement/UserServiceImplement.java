@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 import org.springframework.web.multipart.MultipartFile;
 
+import FutureCraft.tikitaka.back_end.component.FileComponent;
 import FutureCraft.tikitaka.back_end.dto.object.SimpleUserDto;
 import FutureCraft.tikitaka.back_end.dto.request.user.UpdatePasswordRequestDto;
 import FutureCraft.tikitaka.back_end.dto.response.ResponseDto;
@@ -22,7 +23,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserServiceImplement implements UserService {
     private final UserRepository userRepository;
-    private final FileService fileService;
+    private final FileComponent fileService;
     private final PasswordEncoder passwordEncoder;
 
     @Override
