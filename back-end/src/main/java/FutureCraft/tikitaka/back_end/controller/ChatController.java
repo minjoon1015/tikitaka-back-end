@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import FutureCraft.tikitaka.back_end.common.MessageType;
 import FutureCraft.tikitaka.back_end.dto.object.chat.ChatMessageDto;
+import FutureCraft.tikitaka.back_end.dto.object.chat.UpdateReadMessageDto;
 import FutureCraft.tikitaka.back_end.service.ChatService;
 import lombok.RequiredArgsConstructor;
 
@@ -34,5 +35,8 @@ public class ChatController {
         chatService.sendFile(files, chatRoomId, userDetails.getUsername());
     }
 
-    
+    @MessageMapping("/update/read")
+    public void read(@Payload UpdateReadMessageDto updateReadMessageDto, Principal principal) {
+        chatService.updateLastRead(principal.getName(), updateReadMessageDto);
+    }
 }

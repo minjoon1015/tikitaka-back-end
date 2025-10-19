@@ -1,9 +1,6 @@
 package FutureCraft.tikitaka.back_end.entity;
 
 import java.time.LocalDateTime;
-
-import org.springframework.cglib.core.Local;
-
 import FutureCraft.tikitaka.back_end.common.ChatRoomType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

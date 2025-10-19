@@ -5,8 +5,11 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import FutureCraft.tikitaka.back_end.dto.object.chat.ChatMessageDto;
+import FutureCraft.tikitaka.back_end.dto.object.chat.UpdateReadMessageDto;
 
 public interface ChatService {
     void sendMessage(ChatMessageDto requestDto);
     void sendFile(List<MultipartFile> files, Integer chatRoomId, String userId);
+    void updateLastRead(String id, UpdateReadMessageDto updateReadMessageDto);
+    
 }

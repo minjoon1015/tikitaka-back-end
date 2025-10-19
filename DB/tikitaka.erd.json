@@ -4,9 +4,9 @@
   "settings": {
     "width": 2000,
     "height": 2000,
-    "scrollTop": -229.8257,
-    "scrollLeft": -789.6559,
-    "zoomLevel": 0.83,
+    "scrollTop": -209,
+    "scrollLeft": -800,
+    "zoomLevel": 0.8,
     "show": 431,
     "database": 4,
     "databaseName": "",
@@ -506,7 +506,7 @@
         "comment": "",
         "dataType": "varchar(50)",
         "default": "",
-        "options": 8,
+        "options": 0,
         "ui": {
           "keys": 0,
           "widthName": 60,
@@ -515,7 +515,7 @@
           "widthDefault": 60
         },
         "meta": {
-          "updateAt": 1758342367949,
+          "updateAt": 1760163592509,
           "createAt": 1744708758267
         }
       },

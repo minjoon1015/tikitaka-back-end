@@ -26,6 +26,7 @@ public class FileComponent {
             String key = folderName + "/" + fileName;
 
             ObjectMetadata data = new ObjectMetadata();
+
             data.setContentType(file.getContentType());
             data.setContentLength(file.getSize());
 

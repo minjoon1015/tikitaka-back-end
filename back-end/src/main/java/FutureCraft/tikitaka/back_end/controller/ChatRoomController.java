@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import FutureCraft.tikitaka.back_end.dto.request.chat.ChatRoomCreateRequestDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.ChatRoomCreateResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.GetAddableListResponseDto;
+import FutureCraft.tikitaka.back_end.dto.response.chat.GetChatMembersReadInfoResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.GetChatMessageListResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.GetChatRoomListResponseDto;
 import FutureCraft.tikitaka.back_end.service.ChatRoomService;
+import FutureCraft.tikitaka.back_end.service.implement.ChatRoomServiceImplement;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -47,5 +49,10 @@ public class ChatRoomController {
     @GetMapping("/get/history")
     public ResponseEntity<? super GetChatMessageListResponseDto> getHistory(@RequestParam("chatRoomId") Integer chatRoomId, @RequestParam(value = "messageId", required = false) Integer messageId, @AuthenticationPrincipal UserDetails userDetails) {
         return chatRoomService.getHistory(chatRoomId, messageId, userDetails.getUsername());
+    }
+
+    @GetMapping("/get/members/read_info")
+    public ResponseEntity<? super GetChatMembersReadInfoResponseDto> getMembersReadInfo(@AuthenticationPrincipal UserDetails userDetails, @RequestParam("chatRoomId") Integer chatRoomId) {
+        return chatRoomService.getMembersReadInfo(userDetails.getUsername(), chatRoomId);
     }
 }

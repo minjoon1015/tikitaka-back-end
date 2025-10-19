@@ -27,7 +27,7 @@ public class FileValidateManager {
         return fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
     }
 
-    private static String detectFileType(MultipartFile file) throws IOException {
+    static String detectFileType(MultipartFile file) throws IOException {
         try (InputStream is = file.getInputStream()) {
             byte[] header = new byte[8];
             int bytesRead = is.read(header);

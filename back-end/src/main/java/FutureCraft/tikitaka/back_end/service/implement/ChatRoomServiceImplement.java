@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.interceptor.TransactionAspectSupport;
 
-import com.amazonaws.services.s3.internal.eventstreaming.Message;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -25,6 +24,7 @@ import FutureCraft.tikitaka.back_end.common.MessageType;
 import FutureCraft.tikitaka.back_end.common.NotificationType;
 import FutureCraft.tikitaka.back_end.dto.object.SimpleUserDto;
 import FutureCraft.tikitaka.back_end.dto.object.chat.AttachmentDto;
+import FutureCraft.tikitaka.back_end.dto.object.chat.ChatMembersReadInfoDto;
 import FutureCraft.tikitaka.back_end.dto.object.chat.ChatMessageDto;
 import FutureCraft.tikitaka.back_end.dto.object.chat.ChatRoomDto;
 import FutureCraft.tikitaka.back_end.dto.object.notification.CreateChatRoomNotificationDto;
@@ -32,12 +32,15 @@ import FutureCraft.tikitaka.back_end.dto.request.chat.ChatRoomCreateRequestDto;
 import FutureCraft.tikitaka.back_end.dto.response.ResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.ChatRoomCreateResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.GetAddableListResponseDto;
+import FutureCraft.tikitaka.back_end.dto.response.chat.GetChatMembersReadInfoResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.GetChatMessageListResponseDto;
 import FutureCraft.tikitaka.back_end.dto.response.chat.GetChatRoomListResponseDto;
+import FutureCraft.tikitaka.back_end.entity.ChatLastReadEntity;
 import FutureCraft.tikitaka.back_end.entity.ChatMessageEntity;
 import FutureCraft.tikitaka.back_end.entity.ChatRoomEntity;
 import FutureCraft.tikitaka.back_end.entity.ChatRoomParticipantEntity;
 import FutureCraft.tikitaka.back_end.entity.UserEntity;
+import FutureCraft.tikitaka.back_end.repository.ChatLastReadRepository;
 import FutureCraft.tikitaka.back_end.repository.ChatMessageRepository;
 import FutureCraft.tikitaka.back_end.repository.ChatRoomParticipantRepository;
 import FutureCraft.tikitaka.back_end.repository.ChatRoomRepository;
@@ -54,6 +57,7 @@ public class ChatRoomServiceImplement implements ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatRoomParticipantRepository chatRoomParticipantRepository;
     private final ChatMessageRepository chatMessageRepository;
+    private final ChatLastReadRepository chatLastReadRepository;
 
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
@@ -63,11 +67,6 @@ public class ChatRoomServiceImplement implements ChatRoomService {
     @Transactional
     public ResponseEntity<? super ChatRoomCreateResponseDto> create(String id, ChatRoomCreateRequestDto requestDto) {
         try {
-            // 1. requestDto 유저들이 전부 존재하는지 확인
-            // 2. 채팅방 생성
-            // 3. 채팅방-유저 연결
-            // 4. 해당 채팅방 members redis 저장
-            // 5. 채팅방 생성 실시간 알림
             requestDto.getParticipants().add(id);
             List<UserEntity> users = userRepository.findAllById(requestDto.getParticipants());
             if (users.size() != requestDto.getParticipants().size()) {
@@ -87,6 +86,8 @@ public class ChatRoomServiceImplement implements ChatRoomService {
                 ChatRoomParticipantEntity chatRoomParticipantEntity = new ChatRoomParticipantEntity(user.getId(),
                         saved.getId());
                 chatRoomParticipantRepository.save(chatRoomParticipantEntity);
+                ChatLastReadEntity chatLastReadEntity = new ChatLastReadEntity(user.getId(), saved.getId(), null);
+                chatLastReadRepository.save(chatLastReadEntity);
             }
 
             ValueOperations<String, Object> ops = redisTemplate.opsForValue();
@@ -101,6 +102,7 @@ public class ChatRoomServiceImplement implements ChatRoomService {
                         new CreateChatRoomNotificationDto(NotificationType.CREATE_CHAT_ROOM, LocalDateTime.now(),
                                 Integer.toString(saved.getId())));
             }
+
             return ChatRoomCreateResponseDto.success();
         } catch (Exception e) {
             e.printStackTrace();
@@ -179,7 +181,6 @@ public class ChatRoomServiceImplement implements ChatRoomService {
     @Override
     public ResponseEntity<? super GetChatMessageListResponseDto> getHistory(Integer chatRoomId, Integer messageId,
             String id) {
-                System.out.println(messageId);
         try {
             ValueOperations<String, Object> ops = redisTemplate.opsForValue();
             String key = "chatRoom:members:" + chatRoomId;
@@ -232,6 +233,38 @@ public class ChatRoomServiceImplement implements ChatRoomService {
 
             return GetChatMessageListResponseDto.success(chatMessageList);
 
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseDto.databaseError();
+        }
+    }
+
+    @Override
+    public ResponseEntity<? super GetChatMembersReadInfoResponseDto> getMembersReadInfo(String id, Integer chatRoomId) {
+        try {
+            ValueOperations<String, Object> ops = redisTemplate.opsForValue();
+            String key = "chatRoom:members:" + chatRoomId;
+            Object saved = ops.get(key);
+
+            List<SimpleUserDto> users = new ArrayList<>();
+            if (saved != null) {
+                users = objectMapper.convertValue(saved, new TypeReference<List<SimpleUserDto>>(){});
+            }
+            else {
+                List<SimpleUserProjection> members = chatRoomRepository.findMemberList(chatRoomId);
+                users = members.stream().map((m) -> new SimpleUserDto(m.getId(), m.getName(), m.getProfileImage())).collect(Collectors.toList());
+                ops.set(key, users, 24, TimeUnit.HOURS);
+            }
+
+            SimpleUserDto isJoined = users.stream().filter((u) -> u.getId().equals(id)).findFirst().orElse(null);
+            if (isJoined == null) return ResponseDto.badRequest();
+
+            List<ChatLastReadEntity> lastReadEntities = chatLastReadRepository.findByChatRoomId(chatRoomId);
+            List<ChatMembersReadInfoDto> list = null;
+            if (lastReadEntities.size() > 0) {
+                list = lastReadEntities.stream().map((s) -> new ChatMembersReadInfoDto(s.getId().getChatRoomId(), s.getId().getUserId(), s.getMessageId())).collect(Collectors.toList());
+            }
+            return GetChatMembersReadInfoResponseDto.success(list);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseDto.databaseError();

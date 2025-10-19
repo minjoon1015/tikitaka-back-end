@@ -21,14 +21,18 @@ import FutureCraft.tikitaka.back_end.common.NotificationType;
 import FutureCraft.tikitaka.back_end.component.FileComponent;
 import FutureCraft.tikitaka.back_end.dto.object.SimpleUserDto;
 import FutureCraft.tikitaka.back_end.dto.object.chat.AttachmentDto;
+import FutureCraft.tikitaka.back_end.dto.object.chat.ChatMembersReadInfoDto;
 import FutureCraft.tikitaka.back_end.dto.object.chat.ChatMessageDto;
+import FutureCraft.tikitaka.back_end.dto.object.chat.UpdateReadMessageDto;
 import FutureCraft.tikitaka.back_end.dto.object.notification.ChatRoomPrevDto;
+import FutureCraft.tikitaka.back_end.entity.ChatLastReadEntity;
 import FutureCraft.tikitaka.back_end.entity.ChatMessageEntity;
 import FutureCraft.tikitaka.back_end.entity.ChatRoomEntity;
+import FutureCraft.tikitaka.back_end.entity.ChatRoomParticipantEntity;
 import FutureCraft.tikitaka.back_end.entity.MessageAttachmentEntity;
-import FutureCraft.tikitaka.back_end.repository.ChatMessageRepository;
-import FutureCraft.tikitaka.back_end.repository.ChatRoomRepository;
-import FutureCraft.tikitaka.back_end.repository.MessageAttachmentRepository;
+import FutureCraft.tikitaka.back_end.entity.pk.ChatLastReadPk;
+import FutureCraft.tikitaka.back_end.entity.pk.ChatRoomParticipantPk;
+import FutureCraft.tikitaka.back_end.repository.*;
 import FutureCraft.tikitaka.back_end.repository.projection.SimpleUserProjection;
 import FutureCraft.tikitaka.back_end.service.ChatService;
 import FutureCraft.tikitaka.back_end.component.FileValidateManager;
@@ -38,7 +42,7 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImplement implements ChatService {
-
+    private final ChatLastReadRepository chatLastReadRepository;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final RedisTemplate<String, Object> redisTemplate;
     private final ObjectMapper objectMapper;
@@ -46,6 +50,7 @@ public class ChatServiceImplement implements ChatService {
     private final ChatMessageRepository chatMessageRepository;
     private final FileComponent fileComponent;
     private final MessageAttachmentRepository messageAttachmentRepository;
+
 
     @Override
     public void sendMessage(ChatMessageDto requestDto) {
@@ -108,7 +113,7 @@ public class ChatServiceImplement implements ChatService {
             SimpleUserDto senderDto = list.stream().filter((u) -> u.getId().equals(userId)).findFirst().orElse(null);
             if (senderDto == null) return;
 
-            String folderName = "chat/room/" + "/" + chatRoomId;
+            String folderName = "chat/room" + "/" + chatRoomId;
             int fileCount = 0;
             MessageType type = FileValidateManager.getFileType(files.get(0));
             ChatMessageEntity chatMessageEntity = chatMessageRepository.save(new ChatMessageEntity(userId, chatRoomId, null, LocalDateTime.now()));
@@ -140,5 +145,21 @@ public class ChatServiceImplement implements ChatService {
             TransactionAspectSupport.currentTransactionStatus().setRollbackOnly();
         }
     }
+
+    @Override
+    public void updateLastRead(String id, UpdateReadMessageDto updateReadMessageDto) {
+        try {
+            ChatLastReadEntity saved = chatLastReadRepository.findById(new ChatLastReadPk(id, updateReadMessageDto.getChatRoomId())).orElse(null);
+            if (saved == null) return;
+            if (saved.getMessageId() == updateReadMessageDto.getMessageId()) return;
+            saved.setMessageId(updateReadMessageDto.getMessageId());
+            chatLastReadRepository.save(saved);
+            simpMessagingTemplate.convertAndSend("/topic/members/info/" + updateReadMessageDto.getChatRoomId(), new ChatMembersReadInfoDto(updateReadMessageDto.getChatRoomId(), id, updateReadMessageDto.getMessageId()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
     
 }
