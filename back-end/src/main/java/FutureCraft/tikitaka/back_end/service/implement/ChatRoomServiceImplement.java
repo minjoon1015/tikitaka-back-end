@@ -81,7 +81,7 @@ public class ChatRoomServiceImplement implements ChatRoomService {
             }
             ChatRoomEntity chatRoomEntity = new ChatRoomEntity(type);
             ChatRoomEntity saved = chatRoomRepository.save(chatRoomEntity);
-
+            
             for (UserEntity user : users) {
                 ChatRoomParticipantEntity chatRoomParticipantEntity = new ChatRoomParticipantEntity(user.getId(),
                         saved.getId());

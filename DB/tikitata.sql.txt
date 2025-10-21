@@ -1,77 +1,88 @@
+-- 유저 테이블
 CREATE TABLE user (
   id            VARCHAR(50)  NOT NULL,
   name          VARCHAR(50)  NOT NULL,
   password      VARCHAR(100) NOT NULL,
   profile_image TEXT         NULL,
   PRIMARY KEY (id)
-) COMMENT='유저';
+) COMMENT '유저';
 
-CREATE TABLE alarm (
-  id           INT         NOT NULL AUTO_INCREMENT,
-  user_id      VARCHAR(50) NOT NULL,
-  alarm_type   VARCHAR(50) NOT NULL,
-  reference_id VARCHAR(50) NOT NULL,
-  create_at    DATETIME    NOT NULL,
-  PRIMARY KEY (id),
-  CONSTRAINT FK_user_TO_alarm FOREIGN KEY (user_id) REFERENCES user(id)
-) COMMENT='알림';
 
-CREATE TABLE chat_room (
-  id             INT         NOT NULL AUTO_INCREMENT,
-  title          VARCHAR(50) NULL,
-  type           VARCHAR(50) NOT NULL,
-  profile_image  TEXT        NULL,
-  last_message_time DATETIME NULL,
-  last_message   TEXT        NULL,
-  PRIMARY KEY (id)
-) COMMENT='채팅방';
-
-CREATE TABLE chat_room_participant (
-  user_id      VARCHAR(50) NOT NULL,
-  chat_room_id INT         NOT NULL,
-  PRIMARY KEY (user_id, chat_room_id),
-  CONSTRAINT FK_user_TO_chat_room_participant FOREIGN KEY (user_id) REFERENCES user(id),
-  CONSTRAINT FK_chat_room_TO_chat_room_participant FOREIGN KEY (chat_room_id) REFERENCES chat_room(id)
-) COMMENT='채팅 참여자';
-
-CREATE TABLE chat_message (
-  id           INT         NOT NULL AUTO_INCREMENT,
-  user_id      VARCHAR(50) NOT NULL,
-  chat_room_id INT         NOT NULL,
-  message      TEXT        NULL,
-  create_at    DATETIME    NOT NULL,
-  PRIMARY KEY (id),
-  CONSTRAINT FK_user_TO_chat_message FOREIGN KEY (user_id) REFERENCES user(id),
-  CONSTRAINT FK_chat_room_TO_chat_message FOREIGN KEY (chat_room_id) REFERENCES chat_room(id)
-) COMMENT='채팅메시지';
-
-CREATE TABLE chat_message_attachment (
-  id              INT          NOT NULL AUTO_INCREMENT,
-  chat_message_id INT          NOT NULL,
-  url             TEXT         NOT NULL,
-  type            VARCHAR(50)  NOT NULL,
-  title           VARCHAR(100) NOT NULL,
-  size            BIGINT       NOT NULL,
-  PRIMARY KEY (id),
-  CONSTRAINT FK_chat_message_TO_chat_message_attachment FOREIGN KEY (chat_message_id) REFERENCES chat_message(id)
-);
-
-CREATE TABLE chat_last_read (
-  user_id      VARCHAR(50) NOT NULL,
-  chat_room_id INT         NOT NULL,
-  message_id   INT         NOT NULL,
-  PRIMARY KEY (user_id, chat_room_id),
-  CONSTRAINT FK_user_TO_chat_last_read FOREIGN KEY (user_id) REFERENCES user(id),
-  CONSTRAINT FK_chat_room_TO_chat_last_read FOREIGN KEY (chat_room_id) REFERENCES chat_room(id)
-);
-
+-- 친구 테이블
 CREATE TABLE friend (
-  id          INT         NOT NULL AUTO_INCREMENT,
+  id          INT AUTO_INCREMENT PRIMARY KEY,
   sender_id   VARCHAR(50) NOT NULL,
   receiver_id VARCHAR(50) NOT NULL,
   status      VARCHAR(50) NOT NULL,
   create_at   DATETIME    NOT NULL,
-  PRIMARY KEY (id),
-  CONSTRAINT FK_user_TO_friend FOREIGN KEY (sender_id) REFERENCES user(id),
-  CONSTRAINT FK_user_TO_friend1 FOREIGN KEY (receiver_id) REFERENCES user(id)
-);
+  CONSTRAINT FK_friend_sender FOREIGN KEY (sender_id) REFERENCES user (id),
+  CONSTRAINT FK_friend_receiver FOREIGN KEY (receiver_id) REFERENCES user (id)
+) COMMENT '친구';
+
+
+-- 채팅방 테이블
+CREATE TABLE chat_room (
+  id                INT AUTO_INCREMENT PRIMARY KEY,
+  title             VARCHAR(50) NULL,
+  type              VARCHAR(50) NOT NULL,
+  profile_image     TEXT NULL,
+  last_message_time DATETIME NULL,
+  last_message      TEXT NULL
+) COMMENT '채팅방';
+
+
+-- 채팅방 참여자 테이블
+CREATE TABLE chat_room_participant (
+  user_id      VARCHAR(50) NOT NULL,
+  chat_room_id INT NOT NULL,
+  PRIMARY KEY (user_id, chat_room_id),
+  CONSTRAINT FK_participant_user FOREIGN KEY (user_id) REFERENCES user (id),
+  CONSTRAINT FK_participant_room FOREIGN KEY (chat_room_id) REFERENCES chat_room (id)
+) COMMENT '채팅 참여자';
+
+
+-- 채팅 메시지 테이블
+CREATE TABLE chat_message (
+  id           INT AUTO_INCREMENT PRIMARY KEY,
+  user_id      VARCHAR(50) NOT NULL,
+  chat_room_id INT NOT NULL,
+  message      TEXT NULL,
+  create_at    DATETIME NOT NULL,
+  CONSTRAINT FK_message_user FOREIGN KEY (user_id) REFERENCES user (id),
+  CONSTRAINT FK_message_room FOREIGN KEY (chat_room_id) REFERENCES chat_room (id)
+) COMMENT '채팅 메시지';
+
+
+-- 채팅 메시지 첨부 파일 테이블
+CREATE TABLE chat_message_attachment (
+  id              INT AUTO_INCREMENT PRIMARY KEY,
+  chat_message_id INT NOT NULL,
+  url             TEXT NOT NULL,
+  type            VARCHAR(50) NOT NULL,
+  title           VARCHAR(100) NOT NULL,
+  size            BIGINT NOT NULL,
+  CONSTRAINT FK_attachment_message FOREIGN KEY (chat_message_id) REFERENCES chat_message (id)
+) COMMENT '채팅 메시지 첨부 파일';
+
+
+-- 마지막 읽은 메시지 테이블
+CREATE TABLE chat_last_read (
+  user_id      VARCHAR(50) NOT NULL,
+  chat_room_id INT NOT NULL,
+  message_id   INT NULL,
+  PRIMARY KEY (user_id, chat_room_id),
+  CONSTRAINT FK_lastread_user FOREIGN KEY (user_id) REFERENCES user (id),
+  CONSTRAINT FK_lastread_room FOREIGN KEY (chat_room_id) REFERENCES chat_room (id),
+  CONSTRAINT FK_lastread_message FOREIGN KEY (message_id) REFERENCES chat_message (id)
+) COMMENT '채팅 마지막 읽은 메시지';
+
+
+-- 알림 테이블
+CREATE TABLE alarm (
+  id           INT AUTO_INCREMENT PRIMARY KEY,
+  user_id      VARCHAR(50) NOT NULL,
+  alarm_type   VARCHAR(50) NOT NULL,
+  reference_id VARCHAR(50) NOT NULL,
+  create_at    DATETIME NOT NULL,
+  CONSTRAINT FK_alarm_user FOREIGN KEY (user_id) REFERENCES user (id)
+) COMMENT '알림';
